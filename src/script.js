@@ -23,12 +23,19 @@ const canvas = document.querySelector("canvas.webgl");
 // Scene
 const scene = new THREE.Scene();
 
+// texture
+const textureLoader = new THREE.TextureLoader();
+const gradientTexture = textureLoader.load("textures/gradients/3.jpg");
+gradientTexture.magFilter = THREE.NearestFilter;
 // materials
 const material = new THREE.MeshToonMaterial({
   color: parameters.materialColor,
+  gradientMap: gradientTexture,
 });
 
 //objects
+
+const objectDistance = 8;
 const meshOne = new THREE.Mesh(
   new THREE.TorusGeometry(1, 0.4, 16, 60),
   material
@@ -41,7 +48,20 @@ const meshThree = new THREE.Mesh(
   material
 );
 
+// offset objects in scene
+meshOne.position.y = -objectDistance * 0;
+meshTwo.position.y = -objectDistance * 1;
+meshThree.position.y = -objectDistance * 2;
+
+meshOne.position.x = 2;
+
+meshTwo.position.x = -2;
+
+meshThree.position.x = 2;
+
 scene.add(meshOne, meshTwo, meshThree);
+
+const sectionMeshes = [meshOne, meshTwo, meshThree];
 
 // lights
 const directionalLight = new THREE.DirectionalLight("#ffffff", 3);
@@ -93,6 +113,14 @@ const renderer = new THREE.WebGLRenderer({
 renderer.setSize(sizes.width, sizes.height);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
+// scroll
+let scrollY = window.scrollY;
+
+window.addEventListener("scroll", () => {
+  scrollY = window.scrollY;
+  //   console.log(scrollY);
+});
+
 /**
  * Animate
  */
@@ -100,6 +128,15 @@ const clock = new THREE.Clock();
 
 const tick = () => {
   const elapsedTime = clock.getElapsedTime();
+
+  // camera animation
+  camera.position.y = (-scrollY / sizes.height) * objectDistance;
+
+  // mesh animation
+  for (const mesh of sectionMeshes) {
+    mesh.rotation.x = elapsedTime * 0.1;
+    mesh.rotation.y = elapsedTime * 0.125;
+  }
 
   // Render
   renderer.render(scene, camera);
