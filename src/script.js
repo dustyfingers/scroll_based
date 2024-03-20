@@ -10,7 +10,9 @@ const parameters = {
   materialColor: "#ffeded",
 };
 
-gui.addColor(parameters, "materialColor");
+gui.addColor(parameters, "materialColor").onChange(() => {
+  material.color.set(parameters.materialColor);
+});
 
 /**
  * Base
@@ -21,14 +23,30 @@ const canvas = document.querySelector("canvas.webgl");
 // Scene
 const scene = new THREE.Scene();
 
-/**
- * Test cube
- */
-const cube = new THREE.Mesh(
-  new THREE.BoxGeometry(1, 1, 1),
-  new THREE.MeshBasicMaterial({ color: "#ff0000" })
+// materials
+const material = new THREE.MeshToonMaterial({
+  color: parameters.materialColor,
+});
+
+//objects
+const meshOne = new THREE.Mesh(
+  new THREE.TorusGeometry(1, 0.4, 16, 60),
+  material
 );
-scene.add(cube);
+
+const meshTwo = new THREE.Mesh(new THREE.ConeGeometry(1, 2, 32), material);
+
+const meshThree = new THREE.Mesh(
+  new THREE.TorusKnotGeometry(0.8, 0.35, 100, 16),
+  material
+);
+
+scene.add(meshOne, meshTwo, meshThree);
+
+// lights
+const directionalLight = new THREE.DirectionalLight("#ffffff", 3);
+directionalLight.position.set(1, 1, 0);
+scene.add(directionalLight);
 
 /**
  * Sizes
